@@ -1,0 +1,5 @@
+numpy
+numpy_groupies
+scikit_learn
+scipy
+tqdm

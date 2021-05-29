@@ -2,3 +2,6 @@ __pycache__
 .vscode
 .pytest_cache
 .DS_Store
+*.egg-info
+dist/
+build/

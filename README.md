@@ -2,7 +2,7 @@
 
 Clustering algorithms with maximum distance between points inside clusters.
 
-When we have interpetable metric like cosine distance it could be good to have clusters with maximum distance between points. Then we can find good threshold for maximum distance and be confident that points inside clusters are really similar. Unfortunately popular algorithms don't have such behavior.
+When we have interpetable metric like cosine distance it could be nice to have clusters with maximum distance between points. Then we can find good threshold for maximum distance and be confident that points inside clusters are really similar. Unfortunately popular clustering algorithms don't have such behavior.
 
 Main algorithm is MaxDiameterClustering. It is a simple greedy algorithm, in which we add points one by one. If there is a cluster with all points close enough to new points, then we add new point to this cluster. If there is no such cluster, this point starts new cluster.
 
@@ -15,7 +15,7 @@ Also two similar algorithms are added - Leader Clustering and Quality Threshold 
 Basic usage of MaxDiameterClustering:
 ```python
 from sklearn.datasets import make_blobs
-from diameter import MaxDiameterClustering
+from diameter_clustering import MaxDiameterClustering
 
 X, y = make_blobs(n_samples=100, n_features=50)
 
@@ -34,7 +34,7 @@ labels = model.fit_predict(X_normalized)
 
 Instead of using feature matrix `X` we can pass precomputed distance matrix:
 ```python
-from diameter.dist_matrix import compute_dist_matrix
+from diameter_clustering.dist_matrix import compute_dist_matrix
 
 dist_matrix = compute_dist_matrix(X, metric='cosine')
 
@@ -64,7 +64,7 @@ labels = model.fit_predict(X)
 ### Leader Clustering
 
 ```python
-from diameter import LeaderClustering
+from diameter_clustering import LeaderClustering
 
 model = LeaderClustering(max_radius=0.15, metric='cosine')
 labels = model.fit_predict(X)
@@ -77,7 +77,7 @@ could be used as in MaxDiameterClustering.
 ### Quality Threshold Clustering
 
 ```python
-from diameter import QTClustering
+from diameter_clustering import QTClustering
 
 model = QTClustering(max_radius=0.15, metric='cosine', min_cluster_size=5)
 labels = model.fit_predict(X)

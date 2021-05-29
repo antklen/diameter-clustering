@@ -4,7 +4,7 @@ import numpy as np
 import scipy
 from sklearn.datasets import make_blobs
 
-from diameter.dist_matrix import compute_dist_matrix, compute_sparse_dist_matrix
+from diameter_clustering.dist_matrix import compute_dist_matrix, compute_sparse_dist_matrix
 
 
 X, y = make_blobs(n_samples=100, n_features=50, random_state=42)

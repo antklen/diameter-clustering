@@ -4,8 +4,8 @@ import numpy as np
 from scipy.spatial.distance import pdist
 from sklearn.datasets import make_blobs
 
-from diameter import LeaderClustering
-from diameter.dist_matrix import compute_dist_matrix, compute_sparse_dist_matrix
+from diameter_clustering import LeaderClustering
+from diameter_clustering.dist_matrix import compute_dist_matrix, compute_sparse_dist_matrix
 
 
 MAX_RADIUS = 0.25

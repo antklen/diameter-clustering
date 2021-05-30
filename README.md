@@ -8,6 +8,23 @@ Main algorithm is MaxDiameterClustering. It is a simple greedy algorithm, in whi
 
 Also two similar algorithms are added - Leader Clustering and Quality Threshold Clustering.
 
+
+## Installation
+
+Install from PyPI
+```sh
+pip install diameter-clustering
+```
+
+Install from source
+```sh
+pip install git+git://github.com/antklen/diameter-clustering.git
+# or
+git clone git@github.com:antklen/diameter-clustering.git
+cd diameter-clustering
+pip install .
+```
+
 ## Usage
 
 ### MaxDiameterClustering

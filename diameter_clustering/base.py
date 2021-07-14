@@ -36,7 +36,7 @@ class DistanceMatrixMixin:
     def _prepare_distance_matrix(self, X):
         """Prepare distance matrix.
 
-        If self.precomputed_dist is True then do nothing, only check for square shape of X.
+        If self.precomputed_dist is True then do nothing, only check for correctness of X.
         Otherwise compute distance matrix regarding X as array of features. If self.sparse_dist
         is True then compute matrix in sparse format."""
 
@@ -53,6 +53,14 @@ class DistanceMatrixMixin:
 
         if X.shape[0] != X.shape[1]:
             raise ValueError(f'Distance matrix should be square. Got matrix of shape {X.shape}.')
+
+        if self.sparse_dist:
+            if not isinstance(X, csr_matrix):
+                raise TypeError('Sparse distance matrix should be in '
+                                'scipy.sparse.csr_matrix format.')
+        elif not isinstance(X, np.ndarray):
+            raise TypeError('Dense distance matrix should be '
+                            'an instance of np.ndarray.')
 
         return X
 

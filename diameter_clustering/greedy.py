@@ -18,9 +18,12 @@ class MaxDiameterClustering(FitPredictMixin, DistanceMatrixMixin):
         criterion (str): Criterion for choosing cluster from several candidates.
             If 'distance' then choose cluster with minimum average distance to given point.
             If 'size' then choose cluster with maximum current size.
-        metric (str): Distance metric for scipy.spatial.distance.pdist or 'inner_product'.
-            If 'inner_product' then use np.inner instead of pdist which is much faster.
-            np.inner could be used instead of cosine distance for normalized vectors.
+        metric (str): Distance metric.
+            For sparse_dist=True possible options are in sklearn.neighbors.VALID_METRICS['brute'].
+            For sparse_dist=False possible options are 'inner_product' or one of metrics
+            available in scipy.spatial.distance.pdist. If 'inner_product' then use np.inner
+            which is much faster than pdist. 'inner_product' could be used instead
+            of cosine distance for normalized vectors.
         precomputed_dist (bool): If True, then input should be precomputed distance matrix,
             if False then input is array with features.
         sparse_dist (bool): If True, then use distance matrix in sparse format (zero elements
@@ -28,13 +31,13 @@ class MaxDiameterClustering(FitPredictMixin, DistanceMatrixMixin):
             If False, then distance matrix is ordinary numpy array.
         deterministic (bool): If True then take points one by one to get determenistic behavior.
             If False then select points at random, so results would be different for each run.
-        use_timer (bool): If True then use timer in fit method,
-            which can be accessed via self.timer.
+        use_timer (bool): If True then use TimerWithHistory in fit method, which can be accessed
+            via self.timer. Can be useful for debugging.
 
     Attributes:
         labels_ (np.array): Array with cluster labels after fitting model.
         n_clusters_ (int): Number of clusters after fitting model.
-        timer: Timer with history of execution time in dict self.timer.history.
+        timer: Timer with history of execution time (access history via self.timer.history).
     """
 
     def __init__(self, max_distance=0.2, criterion='distance',
@@ -61,14 +64,14 @@ class MaxDiameterClustering(FitPredictMixin, DistanceMatrixMixin):
         """Fit clustering from features or distance matrix.
 
         Args:
-            X (np.array or sparse matrix): Array with features or precomputed distance matrix,
-                could be in sparse format.
+            X (np.array or scipy.sparse.csr_matrix): Array with features or
+                precomputed distance matrix, could be in sparse format.
         """
 
-        dist = self._prepare_distance_matrix(X)
+        dist_matrix = self._prepare_distance_matrix(X)
 
         # create array for labels
-        labels = np.empty(dist.shape[0])
+        labels = np.empty(dist_matrix.shape[0])
         labels.fill(np.nan)
 
         # handle case when empty input data is passed
@@ -96,7 +99,7 @@ class MaxDiameterClustering(FitPredictMixin, DistanceMatrixMixin):
                 current_cluster_labels = labels[current_cluster_idx].astype(int)
             # find distances to already labeled points
             with self.timer(name='get_distances'):
-                current_dist = self._slice_distance_matrix(dist, idx, current_cluster_idx)
+                current_dist = self._slice_distance_matrix(dist_matrix, idx, current_cluster_idx)
 
             # find max distance to each existent cluster
             with self.timer(name='max_distance_to_clusters'):

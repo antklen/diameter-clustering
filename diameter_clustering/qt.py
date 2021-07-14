@@ -16,9 +16,12 @@ class QTClustering(FitPredictMixin, DistanceMatrixMixin):
         max_radius (float): Maximum radius of cluster
             (maximum distance between center of cluster and all other points).
         min_cluster_size (int): Minimum size of clusters, stop iterations at this cluster size.
-        metric (str): Distance metric for scipy.spatial.distance.pdist or 'inner_product'.
-            If 'inner_product' then use np.inner instead of pdist which is much faster.
-            np.inner could be used instead of cosine distance for normalized vectors.
+        metric (str): Distance metric.
+            For sparse_dist=True possible options are in sklearn.neighbors.VALID_METRICS['brute'].
+            For sparse_dist=False possible options are 'inner_product' or one of metrics
+            available in scipy.spatial.distance.pdist. If 'inner_product' then use np.inner
+            which is much faster than pdist. 'inner_product' could be used instead
+            of cosine distance for normalized vectors.
         precomputed_dist (bool): If True, then input should be precomputed distance matrix,
             if False then input is array with features.
         sparse_dist (bool): If True, then use distance matrix in sparse format (zero elements
@@ -31,8 +34,9 @@ class QTClustering(FitPredictMixin, DistanceMatrixMixin):
         centers_ (np.array): Array with 1 for cluster centers and with 0 for all other points.
     """
 
-    def __init__(self, max_radius=0.1, min_cluster_size=10, metric='inner_product',
-                 precomputed_dist=False, sparse_dist=False):
+    def __init__(self, max_radius=0.1, min_cluster_size=2,
+                 metric='inner_product', precomputed_dist=False,
+                 sparse_dist=False):
 
         self.max_radius = max_radius
         self.min_cluster_size = min_cluster_size
@@ -49,19 +53,19 @@ class QTClustering(FitPredictMixin, DistanceMatrixMixin):
         """Fit clustering from features or distance matrix.
 
         Args:
-            X (np.array or sparse matrix): Array with features or precomputed distance matrix,
-                could be in sparse matrix format.
+            X (np.array or scipy.sparse.csr_matrix): Array with features or
+                precomputed distance matrix, could be in sparse matrix format.
         """
 
-        dist = self._prepare_distance_matrix(X)
+        dist_matrix = self._prepare_distance_matrix(X)
 
         if self.sparse_dist:
-            dist_mask = lil_matrix(dist)
+            dist_mask = lil_matrix(dist_matrix)
             dist_mask[dist_mask > 0] = 1
             dist_mask.setdiag(1)
             labels, centers = self.fit_sparse(dist_mask)
         else:
-            dist_mask = dist < self.max_radius
+            dist_mask = dist_matrix < self.max_radius
             np.fill_diagonal(dist_mask, True)
             labels, centers = self.fit_dense(dist_mask)
 

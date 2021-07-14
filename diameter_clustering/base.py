@@ -2,9 +2,13 @@
 Base classes for all clustering algorithms.
 """
 
+import logging
+
 import numpy as np
+from scipy.sparse import csr_matrix
 
 from .dist_matrix import compute_dist_matrix, compute_sparse_dist_matrix
+from .timer import timer
 
 
 class FitPredictMixin:
@@ -14,8 +18,11 @@ class FitPredictMixin:
         """Fit clustering from features or distance matrix and return cluster labels.
 
         Args:
-            X (np.array or sparse matrix): Array with features or precomputed distance matrix,
-                which could be in sparse matrix format.
+            X (np.array or scipy.sparse.csr_matrix): Array with features or
+                precomputed distance matrix, which could be in sparse matrix format.
+
+        Returns:
+            np.array with cluster labels.
         """
 
         self.fit(X)
@@ -35,30 +42,34 @@ class DistanceMatrixMixin:
 
         if not self.precomputed_dist:
             if self.sparse_dist:
-                return compute_sparse_dist_matrix(X, metric=self.metric,
-                                                  max_distance=self.max_distance)
+                logging.info('computing distance matrix in sparse format...')
+                with timer('compute_sparse_dist_matrix'):
+                    return compute_sparse_dist_matrix(X, metric=self.metric,
+                                                      max_distance=self.max_distance)
             else:
-                return compute_dist_matrix(X, metric=self.metric)
+                logging.info('computing distance matrix in dense format...')
+                with timer('compute_dist_matrix'):
+                    return compute_dist_matrix(X, metric=self.metric)
 
         if X.shape[0] != X.shape[1]:
             raise ValueError(f'Distance matrix should be square. Got matrix of shape {X.shape}.')
 
         return X
 
-    def _slice_distance_matrix(self, dist, idx, indexes):
+    def _slice_distance_matrix(self, dist_matrix, idx, indexes):
         """Get one row of distance matrix.
         Get distance between given point and several other points.
 
         Args:
-            dist (np.array or csr_matrix): Distance matrix.
+            dist (np.array or scipy.sparse.csr_matrix): Distance matrix.
             idx (int): Index of given point.
             indexes (np.array): Indexes of other points.
         """
 
-        if self.sparse_dist:
-            current_dist = dist[idx, indexes].toarray()[0, :]
+        if isinstance(dist_matrix, csr_matrix):
+            current_dist = dist_matrix[idx, indexes].toarray()[0, :]
             current_dist[current_dist == 0] = np.inf
         else:
-            current_dist = dist[idx, indexes]
+            current_dist = dist_matrix[idx, indexes]
 
         return current_dist

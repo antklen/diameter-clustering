@@ -16,9 +16,12 @@ class LeaderClustering(FitPredictMixin, DistanceMatrixMixin):
             (maximum distance between leader and all other points in cluster).
         change_leaders (bool): if True then change cluster leader if there is a point with smaller
             average distance to all points in cluster.
-        metric (str): Distance metric for scipy.spatial.distance.pdist or 'inner_product'.
-            If 'inner_product' then use np.inner instead of pdist which is much faster.
-            np.inner could be used instead of cosine distance for normalized vectors.
+        metric (str): Distance metric.
+            For sparse_dist=True possible options are in sklearn.neighbors.VALID_METRICS['brute'].
+            For sparse_dist=False possible options are 'inner_product' or one of metrics
+            available in scipy.spatial.distance.pdist. If 'inner_product' then use np.inner
+            which is much faster than pdist. 'inner_product' could be used instead
+            of cosine distance for normalized vectors.
         precomputed_dist (bool): If True, then input should be precomputed distance matrix,
             if False then input is array with features.
         sparse_dist (bool): If True, then use distance matrix in sparse format (zero elements
@@ -33,9 +36,9 @@ class LeaderClustering(FitPredictMixin, DistanceMatrixMixin):
         leaders_ (np.array): Array with 1 for cluster leaders and with 0 for all other points.
     """
 
-    def __init__(self, max_radius=0.1, change_leaders=False, metric='inner_product',
-                 precomputed_dist=False, sparse_dist=False,
-                 deterministic=False):
+    def __init__(self, max_radius=0.1, change_leaders=False,
+                 metric='inner_product', precomputed_dist=False,
+                 sparse_dist=False, deterministic=False):
 
         self.max_radius = max_radius
         self.change_leaders = change_leaders
@@ -53,16 +56,16 @@ class LeaderClustering(FitPredictMixin, DistanceMatrixMixin):
         """Fit clustering from features or distance matrix.
 
         Args:
-            X (np.array or sparse matrix): Array with features or precomputed distance matrix,
-                could be in sparse matrix format.
+            X (np.array or scipy.sparse.csr_matrix): Array with features or
+                precomputed distance matrix, could be in sparse matrix format.
         """
 
-        dist = self._prepare_distance_matrix(X)
+        dist_matrix = self._prepare_distance_matrix(X)
 
         # create arrays for labels and leaders
-        labels = np.empty(dist.shape[0])
+        labels = np.empty(dist_matrix.shape[0])
         labels.fill(np.nan)
-        leaders = np.zeros(dist.shape[0])
+        leaders = np.zeros(dist_matrix.shape[0])
 
         # choose first point and assign label to it
         idx = 0 if self.deterministic else np.random.choice(range(len(labels)))
@@ -80,7 +83,7 @@ class LeaderClustering(FitPredictMixin, DistanceMatrixMixin):
             current_leaders_labels = labels[current_leaders_idx]
 
             # find distances to current leaders
-            leaders_dist = self._slice_distance_matrix(dist, idx, current_leaders_idx)
+            leaders_dist = self._slice_distance_matrix(dist_matrix, idx, current_leaders_idx)
 
             if np.min(leaders_dist) <= self.max_radius:
                 # assign cluster with nearest leader as label
@@ -89,7 +92,7 @@ class LeaderClustering(FitPredictMixin, DistanceMatrixMixin):
                 # change leader in cluster if there is better candidate for it
                 if self.change_leaders:
                     cluster_idx = np.where(labels == labels[idx])[0]
-                    dist_inside = dist[cluster_idx][:, cluster_idx].mean(axis=1)
+                    dist_inside = dist_matrix[cluster_idx][:, cluster_idx].mean(axis=1)
                     min_idx = cluster_idx[dist_inside.argmin()]
                     nearest_leader_idx = current_leaders_idx[leaders_dist.argmin()]
                     if min_idx != nearest_leader_idx:

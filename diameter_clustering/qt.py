@@ -35,8 +35,8 @@ class QTClustering(FitPredictMixin, DistanceMatrixMixin):
     """
 
     def __init__(self, max_radius=0.1, min_cluster_size=2,
-                 metric='inner_product', precomputed_dist=False,
-                 sparse_dist=False):
+                 metric='cosine', precomputed_dist=False,
+                 sparse_dist=True):
 
         self.max_radius = max_radius
         self.min_cluster_size = min_cluster_size

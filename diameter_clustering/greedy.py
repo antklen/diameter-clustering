@@ -41,8 +41,8 @@ class MaxDiameterClustering(FitPredictMixin, DistanceMatrixMixin):
     """
 
     def __init__(self, max_distance=0.2, criterion='distance',
-                 metric='inner_product', precomputed_dist=False,
-                 sparse_dist=False, deterministic=False,
+                 metric='cosine', precomputed_dist=False,
+                 sparse_dist=True, deterministic=False,
                  use_timer=False):
 
         if criterion not in ['size', 'distance']:

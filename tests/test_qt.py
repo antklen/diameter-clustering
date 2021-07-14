@@ -34,17 +34,17 @@ def compute_max_dist(X, labels, metric='cosine'):
 def test_qt():
 
     model = QTClustering(max_radius=MAX_RADIUS_EUCLIDEAN, metric='euclidean',
-                         min_cluster_size=1)
+                         min_cluster_size=1, sparse_dist=False)
     labels = model.fit_predict(X)
     assert compute_max_dist(X, labels, metric='euclidean') < MAX_RADIUS_EUCLIDEAN * 2
 
     model = QTClustering(max_radius=MAX_RADIUS_EUCLIDEAN, metric='euclidean',
-                         min_cluster_size=3)
+                         min_cluster_size=3, sparse_dist=False)
     labels = model.fit_predict(X)
     assert compute_max_dist(X[labels != -1], labels[labels != -1],
                             metric='euclidean') < MAX_RADIUS_EUCLIDEAN * 2
 
-    model = QTClustering(max_radius=MAX_RADIUS, metric='cosine')
+    model = QTClustering(max_radius=MAX_RADIUS, metric='cosine', sparse_dist=False)
     labels = model.fit_predict(X)
     assert len(labels) == len(X)
 
@@ -52,11 +52,11 @@ def test_qt():
 def test_inner_product():
 
     x_normalized = X/(np.linalg.norm(X, axis=-1, keepdims=True) + 1e-16)
-    model = QTClustering(max_radius=MAX_RADIUS, metric='inner_product')
+    model = QTClustering(max_radius=MAX_RADIUS, metric='inner_product', sparse_dist=False)
     labels = model.fit_predict(x_normalized)
     assert len(labels) == len(X)
 
-    model2 = QTClustering(max_radius=MAX_RADIUS, metric='cosine')
+    model2 = QTClustering(max_radius=MAX_RADIUS, metric='cosine', sparse_dist=False)
     labels2 = model2.fit_predict(X)
     assert np.array_equal(labels, labels2)
 
@@ -64,7 +64,7 @@ def test_inner_product():
 def test_precomputed():
 
     model = QTClustering(max_radius=MAX_RADIUS_EUCLIDEAN, metric='euclidean',
-                         min_cluster_size=1, precomputed_dist=True)
+                         min_cluster_size=1, precomputed_dist=True, sparse_dist=False)
     dist_matrix = compute_dist_matrix(X, metric='euclidean')
     labels = model.fit_predict(dist_matrix)
     assert compute_max_dist(X, labels, metric='euclidean') < MAX_RADIUS_EUCLIDEAN * 2

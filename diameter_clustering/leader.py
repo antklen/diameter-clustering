@@ -37,8 +37,8 @@ class LeaderClustering(FitPredictMixin, DistanceMatrixMixin):
     """
 
     def __init__(self, max_radius=0.1, change_leaders=False,
-                 metric='inner_product', precomputed_dist=False,
-                 sparse_dist=False, deterministic=False):
+                 metric='cosine', precomputed_dist=False,
+                 sparse_dist=True, deterministic=False):
 
         self.max_radius = max_radius
         self.change_leaders = change_leaders

@@ -33,16 +33,17 @@ def compute_max_dist(X, labels, metric='cosine'):
 
 def test_leader():
 
-    model = LeaderClustering(max_radius=MAX_RADIUS_EUCLIDEAN, metric='euclidean')
+    model = LeaderClustering(max_radius=MAX_RADIUS_EUCLIDEAN, metric='euclidean',
+                             sparse_dist=False)
     labels = model.fit_predict(X)
     assert compute_max_dist(X, labels, metric='euclidean') < MAX_RADIUS_EUCLIDEAN * 2
 
     model = LeaderClustering(max_radius=MAX_RADIUS_EUCLIDEAN, metric='euclidean',
-                             change_leaders=True)
+                             change_leaders=True, sparse_dist=False)
     labels = model.fit_predict(X)
     assert compute_max_dist(X, labels, metric='euclidean') < MAX_RADIUS_EUCLIDEAN * 2
 
-    model = LeaderClustering(max_radius=MAX_RADIUS, metric='cosine')
+    model = LeaderClustering(max_radius=MAX_RADIUS, metric='cosine', sparse_dist=False)
     labels = model.fit_predict(X)
     assert len(labels) == len(X)
 
@@ -51,19 +52,19 @@ def test_inner_product():
 
     x_normalized = X/(np.linalg.norm(X, axis=-1, keepdims=True) + 1e-16)
     model = LeaderClustering(max_radius=MAX_RADIUS, metric='inner_product',
-                             deterministic=True)
+                             sparse_dist=False, deterministic=True)
     labels = model.fit_predict(x_normalized)
     assert len(labels) == len(X)
 
     model2 = LeaderClustering(max_radius=MAX_RADIUS, metric='cosine',
-                              deterministic=True)
+                              sparse_dist=False, deterministic=True)
     labels2 = model2.fit_predict(X)
     assert np.array_equal(labels, labels2)
 
 def test_precomputed():
 
     model = LeaderClustering(max_radius=MAX_RADIUS_EUCLIDEAN, metric='euclidean',
-                             precomputed_dist=True)
+                             precomputed_dist=True, sparse_dist=False)
     dist_matrix = compute_dist_matrix(X, metric='euclidean')
     labels = model.fit_predict(dist_matrix)
     assert compute_max_dist(X, labels, metric='euclidean') < MAX_RADIUS_EUCLIDEAN * 2

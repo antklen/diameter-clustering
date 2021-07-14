@@ -40,34 +40,37 @@ model = MaxDiameterClustering(max_distance=0.3, metric='cosine')
 labels = model.fit_predict(X)
 ```
 
-When we want to compute cosine distance and our vectors are normalized, it is better to use
-`inner_product` as metric because it is much faster:
-```python
-X_normalized = X/(np.linalg.norm(X, axis=-1, keepdims=True) + 1e-16)
-
-model = MaxDiameterClustering(max_distance=0.3, metric='inner_product')
-labels = model.fit_predict(X_normalized)
-```
-
 Instead of using feature matrix `X` we can pass precomputed distance matrix:
 ```python
-from diameter_clustering.dist_matrix import compute_dist_matrix
+from diameter_clustering.dist_matrix import compute_sparse_dist_matrix
 
-dist_matrix = compute_dist_matrix(X, metric='cosine')
+dist_matrix = compute_sparse_dist_matrix(X, metric='cosine')
 
 model = MaxDiameterClustering(max_distance=0.3, precomputed_dist=True)
 labels = model.fit_predict(dist_matrix)
 ```
 
-Calculation of full distance matrix between all points is expensive, so for big datasets
-it is better to use distance matrix in sparse format:
+By default computation of distance matrix in sparse format is used (`sparse_dist=True`), because calculation of distance matrix between all points in dense format is expensive. But when dataset is not so big (roughly less than 20k-30k points) `sparse_dist=False` mode can be used. It could be faster for small datasets or useful when you already have precomputed distance matrix in dense format.
 ```python
-model = MaxDiameterClustering(max_distance=0.3, metric='cosine', sparse_dist=True)
+model = MaxDiameterClustering(max_distance=0.3, metric='cosine', sparse_dist=False)
 labels = model.fit_predict(X)
 
-model = MaxDiameterClustering(max_distance=0.3, sparse_dist=True, precomputed_dist=True)
-dist_matrix = compute_sparse_dist_matrix(X, max_distance=0.3, metric='cosine')
+
+from diameter_clustering.dist_matrix import compute_dist_matrix
+
+dist_matrix = compute_dist_matrix(X, max_distance=0.3, metric='cosine')
+
+model = MaxDiameterClustering(max_distance=0.3, sparse_dist=False, precomputed_dist=True)
 labels = model.fit_predict(dist_matrix)
+```
+
+When we want to compute cosine distance in dense format and our vectors are normalized, it is better to use
+`inner_product` as metric because it is much faster:
+```python
+X_normalized = X/(np.linalg.norm(X, axis=-1, keepdims=True) + 1e-16)
+
+model = MaxDiameterClustering(max_distance=0.3, metric='inner_product', sparse_dist=False)
+labels = model.fit_predict(X_normalized)
 ```
 
 With `deterministic=True` we can get reproducible results:
@@ -87,8 +90,8 @@ model = LeaderClustering(max_radius=0.15, metric='cosine')
 labels = model.fit_predict(X)
 ```
 
-Precomputed distance, sparse distance, deterministic behavior  and inner_product
-could be used as in MaxDiameterClustering.
+`precomputed_dist`, `sparse_dist`, `deterministic` and `inner_product`
+can be used as in MaxDiameterClustering.
 
 
 ### Quality Threshold Clustering
@@ -100,8 +103,8 @@ model = QTClustering(max_radius=0.15, metric='cosine', min_cluster_size=5)
 labels = model.fit_predict(X)
 ```
 
-Precomputed distance, sparse distance  and inner_product
-could be used as in MaxDiameterClustering. This algorithm is deterministic by design.
+`precomputed_dist`, `sparse_dist`, and `inner_product`
+can be used as in MaxDiameterClustering. This algorithm is deterministic by design.
 
 
 

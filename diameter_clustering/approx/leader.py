@@ -37,8 +37,8 @@ class ApproxLeaderClustering:
         data = np.random.rand(1000, 50)
         hnsw_index = HNSWIndex(max_elements=len(data), space='cosine', dim=50,
                                ef=100, ef_construction=200, M=16)
-        approx = ApproxLeaderClustering(hnsw_index, max_radius=0.2, deterministic=True)
-        labels = approx.fit_predict(data)
+        model = ApproxLeaderClustering(hnsw_index, max_radius=0.2, deterministic=True)
+        labels = model.fit_predict(data)
 
         # save index for later usage
         hnsw_index.save('hnsw_index.bin')
@@ -47,8 +47,8 @@ class ApproxLeaderClustering:
         new_data = np.random.rand(100, 50)
         hnsw_index = HNSWIndex(max_elements=len(new_data), path='hnsw_index.bin',
                                space='cosine', dim=50, ef=100)
-        approx = ApproxLeaderClustering(hnsw_index, max_radius=0.2, deterministic=True)
-        new_labels = approx.predict(new_data)
+        model = ApproxLeaderClustering(hnsw_index, max_radius=0.2, deterministic=True)
+        new_labels = model.predict(new_data)
     """
 
     def __init__(self, ann_index: HNSWIndex, max_radius: float = 0.1,

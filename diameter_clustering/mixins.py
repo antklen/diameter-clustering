@@ -1,5 +1,5 @@
 """
-Base classes for all clustering algorithms.
+Mixins for clustering algorithms.
 """
 
 import logging

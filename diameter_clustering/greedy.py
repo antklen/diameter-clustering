@@ -9,7 +9,7 @@ import numpy_groupies as npg
 from scipy.sparse import csr_matrix
 from tqdm import tqdm
 
-from .base import FitPredictMixin, DistanceMatrixMixin
+from .mixins import FitPredictMixin, DistanceMatrixMixin
 from .timer import TimerWithHistory
 
 

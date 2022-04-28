@@ -8,7 +8,7 @@ import numpy as np
 from scipy.sparse import csr_matrix, lil_matrix
 from tqdm import tqdm
 
-from .base import FitPredictMixin, DistanceMatrixMixin
+from .mixins import FitPredictMixin, DistanceMatrixMixin
 
 
 class QTClustering(FitPredictMixin, DistanceMatrixMixin):

@@ -35,9 +35,10 @@ class LeaderClustering(FitPredictMixin, DistanceMatrixMixin):
         verbose (bool): If True then output progress info, otherwise be silent.
 
     Attributes:
-        labels_ (np.array): Array with cluster labels after fitting model.
+        labels_ (np.ndarray): Array with cluster labels after fitting model.
         n_clusters_ (int): Number of clusters after fitting model.
-        leaders_ (np.array): Array with 1 for cluster leaders and with 0 for all other points.
+        centers_ (np.ndarray): Array with indexes of cluster centers.
+        leaders_ (np.ndarray): Array with 1 for cluster centers and with 0 for all other points.
     """
 
     def __init__(self, max_radius: float = 0.1, change_leaders: bool = False,
@@ -55,8 +56,9 @@ class LeaderClustering(FitPredictMixin, DistanceMatrixMixin):
 
         self.max_distance = max_radius  # is needed for computation of sparse distance matrix
         self.labels_ = None
-        self.leaders_ = None
         self.n_clusters_ = None
+        self.centers_ = None
+        self.leaders_ = None
 
     def fit(self, X: Union[np.ndarray, csr_matrix]):
         """Fit clustering from features or distance matrix.
@@ -68,16 +70,18 @@ class LeaderClustering(FitPredictMixin, DistanceMatrixMixin):
 
         dist_matrix = self._prepare_distance_matrix(X)
 
-        # create arrays for labels and leaders
+        # create arrays for labels, leaders and centers
         labels = np.empty(dist_matrix.shape[0])
         labels.fill(np.nan)
         leaders = np.zeros(dist_matrix.shape[0])
+        centers = []
 
         # choose first point and assign label to it
         idx = 0 if self.deterministic else np.random.choice(range(len(labels)))
         labels[idx] = 0
         next_cluster = 1
         leaders[idx] = 1
+        centers.append(idx)
 
         for _ in tqdm(range(len(labels)-1), desc='LeaderClustering fit', disable=not self.verbose):
 
@@ -109,8 +113,10 @@ class LeaderClustering(FitPredictMixin, DistanceMatrixMixin):
                 # assign new cluster label
                 labels[idx] = next_cluster
                 leaders[idx] = 1
+                centers.append(idx)
                 next_cluster += 1
 
         self.labels_ = labels.astype(int)
-        self.leaders_ = leaders
-        self.n_clusters_ = labels.max() + 1
+        self.n_clusters_ = int(labels.max() + 1)
+        self.centers_ = np.array(centers)
+        self.leaders_ = leaders.astype(int)

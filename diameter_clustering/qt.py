@@ -32,9 +32,9 @@ class QTClustering(FitPredictMixin, DistanceMatrixMixin):
         verbose (bool): If True then output progress info, otherwise be silent.
 
     Attributes:
-        labels_ (np.array): Array with cluster labels after fitting model.
+        labels_ (np.ndarray): Array with cluster labels after fitting model.
         n_clusters_ (int): Number of clusters after fitting model.
-        centers_ (np.array): Array with 1 for cluster centers and with 0 for all other points.
+        centers_ (np.ndarray): Array with indexes of cluster centers.
     """
 
     def __init__(self, max_radius: float = 0.1, min_cluster_size: int = 2,
@@ -50,8 +50,8 @@ class QTClustering(FitPredictMixin, DistanceMatrixMixin):
 
         self.max_distance = max_radius  # is needed for computation of sparse distance matrix
         self.labels_ = None
-        self.centers_ = None
         self.n_clusters_ = None
+        self.centers_ = None
 
     def fit(self, X: Union[np.ndarray, csr_matrix]):
         """Fit clustering from features or distance matrix.
@@ -73,9 +73,9 @@ class QTClustering(FitPredictMixin, DistanceMatrixMixin):
             np.fill_diagonal(dist_mask, True)
             labels, centers = self.fit_dense(dist_mask)
 
-        self.labels_ = labels
-        self.centers_ = centers
-        self.n_clusters_ = labels.max() + 1
+        self.labels_ = labels.astype(int)
+        self.n_clusters_ = int(labels.max() + 1)
+        self.centers_ = np.array(centers)
 
     def fit_dense(self, dist_mask: np.ndarray):
         """Fit clustering from distance matrix mask when it is dense matrix."""

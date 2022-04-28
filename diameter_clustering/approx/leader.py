@@ -26,7 +26,8 @@ class ApproxLeaderClustering:
     Attributes:
         labels_ (np.ndarray): Array with cluster labels after fitting model.
         n_clusters_ (int): Number of clusters after fitting model.
-        leaders_ (np.ndarray): Array with 1 for cluster leaders and with 0 for all other points.
+        centers_ (np.ndarray): Array with indexes of cluster centers.
+        leaders_ (np.ndarray): Array with 1 for cluster centers and with 0 for all other points.
 
     Examples:
         import numpy as np
@@ -60,8 +61,9 @@ class ApproxLeaderClustering:
         self.verbose = verbose
 
         self.labels_ = None
-        self.leaders_ = None
         self.n_clusters_ = None
+        self.centers_ = None
+        self.leaders_ = None
 
     def fit(self, X: np.ndarray):
         """Fit clustering.
@@ -74,6 +76,7 @@ class ApproxLeaderClustering:
         labels = np.empty(len(X))
         labels.fill(np.nan)
         leaders = np.zeros(len(X))
+        centers = []
 
         # handle case when empty input data is passed
         if len(labels) == 0:
@@ -87,6 +90,7 @@ class ApproxLeaderClustering:
         labels[idx] = 0
         next_cluster = 1
         leaders[idx] = 1
+        centers.append(idx)
         self.ann_index.add_item(X[idx])
 
         for _ in tqdm(range(len(labels)-1), desc='ApproxLeaderClustering fit',
@@ -106,13 +110,14 @@ class ApproxLeaderClustering:
                 # assign new cluster label
                 labels[idx] = next_cluster
                 leaders[idx] = 1
+                centers.append(idx)
                 next_cluster += 1
                 self.ann_index.add_item(X[idx])
 
         self.labels_ = labels.astype(int)
-        self.leaders_ = leaders
-        self.n_clusters_ = labels.max() + 1
-
+        self.n_clusters_ = int(labels.max() + 1)
+        self.centers_ = np.array(centers)
+        self.leaders_ = leaders.astype(int)
 
     def fit_predict(self, X: np.ndarray) -> np.ndarray:
         """Fit clustering and return cluster labels.

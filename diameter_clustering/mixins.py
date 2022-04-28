@@ -43,13 +43,15 @@ class DistanceMatrixMixin:
 
         if not self.precomputed_dist:
             if self.sparse_dist:
-                logging.info('computing distance matrix in sparse format...')
-                with timer('compute_sparse_dist_matrix'):
+                if self.verbose:
+                    logging.info('computing distance matrix in sparse format...')
+                with timer('compute_sparse_dist_matrix', disable=not self.verbose):
                     return compute_sparse_dist_matrix(X, metric=self.metric,
                                                       max_distance=self.max_distance)
             else:
-                logging.info('computing distance matrix in dense format...')
-                with timer('compute_dist_matrix'):
+                if self.verbose:
+                    logging.info('computing distance matrix in dense format...')
+                with timer('compute_dist_matrix', disable=not self.verbose):
                     return compute_dist_matrix(X, metric=self.metric)
 
         if X.shape[0] != X.shape[1]:

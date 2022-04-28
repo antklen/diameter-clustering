@@ -29,6 +29,7 @@ class QTClustering(FitPredictMixin, DistanceMatrixMixin):
         sparse_dist (bool): If True, then use distance matrix in sparse format (zero elements
             are elements for which distance between points is greater than max_distance).
             If False, then consider distance matrix as ordinary numpy array.
+        verbose (bool): If True then output progress info, otherwise be silent.
 
     Attributes:
         labels_ (np.array): Array with cluster labels after fitting model.
@@ -38,13 +39,14 @@ class QTClustering(FitPredictMixin, DistanceMatrixMixin):
 
     def __init__(self, max_radius: float = 0.1, min_cluster_size: int = 2,
                  metric: str = 'cosine', precomputed_dist: bool = False,
-                 sparse_dist: bool = True):
+                 sparse_dist: bool = True, verbose: bool = True):
 
         self.max_radius = max_radius
         self.min_cluster_size = min_cluster_size
         self.metric = metric
         self.precomputed_dist = precomputed_dist
         self.sparse_dist = sparse_dist
+        self.verbose = verbose
 
         self.max_distance = max_radius  # is needed for computation of sparse distance matrix
         self.labels_ = None
@@ -84,7 +86,7 @@ class QTClustering(FitPredictMixin, DistanceMatrixMixin):
         cluster_number = 0
         total_count = 0
 
-        with tqdm(total=dist_mask.shape[0]) as pbar:
+        with tqdm(total=dist_mask.shape[0], disable=not self.verbose) as pbar:
             while dist_mask.any():
 
                 # find size of candidate clusters for each point
@@ -110,7 +112,8 @@ class QTClustering(FitPredictMixin, DistanceMatrixMixin):
                 total_count += size
 
                 pbar.update(size)
-                pbar.set_description(f"Current cluster size {size}, total count {total_count}")
+                pbar.set_description(
+                    f"QTClustering fit. Current cluster size {size}, total count {total_count}")
 
         return labels, centers
 
@@ -123,7 +126,7 @@ class QTClustering(FitPredictMixin, DistanceMatrixMixin):
         cluster_number = 0
         total_count = 0
 
-        with tqdm(total=dist_mask.shape[0]) as pbar:
+        with tqdm(total=dist_mask.shape[0], disable=not self.verbose) as pbar:
             while dist_mask.sum() > 0:
 
                 # find size of candidate clusters for each point
@@ -150,6 +153,7 @@ class QTClustering(FitPredictMixin, DistanceMatrixMixin):
                 total_count += size
 
                 pbar.update(size)
-                pbar.set_description(f"Current cluster size {size}, total count {total_count}")
+                pbar.set_description(
+                    f"QTClustering fit. Current cluster size {size}, total count {total_count}")
 
         return labels, centers

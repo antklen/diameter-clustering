@@ -36,6 +36,7 @@ class MaxDiameterClustering(FitPredictMixin, DistanceMatrixMixin):
             If False then select points at random, so results would be different for each run.
         use_timer (bool): If True then use TimerWithHistory in fit method, which can be accessed
             via self.timer. Can be useful for debugging.
+        verbose (bool): If True then output progress info, otherwise be silent.
 
     Attributes:
         labels_ (np.array): Array with cluster labels after fitting model.
@@ -46,7 +47,7 @@ class MaxDiameterClustering(FitPredictMixin, DistanceMatrixMixin):
     def __init__(self, max_distance: float = 0.2, criterion: str = 'distance',
                  metric: str = 'cosine', precomputed_dist: bool = False,
                  sparse_dist: bool = True, deterministic: bool = False,
-                 use_timer: bool = False):
+                 use_timer: bool = False, verbose: bool = True):
 
         if criterion not in ['size', 'distance']:
             raise ValueError('Wrong criterion value, should be "size" or "distance".')
@@ -58,6 +59,7 @@ class MaxDiameterClustering(FitPredictMixin, DistanceMatrixMixin):
         self.sparse_dist = sparse_dist
         self.deterministic = deterministic
         self.use_timer = use_timer
+        self.verbose = verbose
 
         self.labels_ = None
         self.n_clusters_ = None
@@ -90,7 +92,8 @@ class MaxDiameterClustering(FitPredictMixin, DistanceMatrixMixin):
 
         self.timer = TimerWithHistory(disable=not self.use_timer)
 
-        for _ in tqdm(range(len(labels)-1), desc='MaxDiameterClustering fit'):
+        for _ in tqdm(range(len(labels)-1), desc='MaxDiameterClustering fit',
+                      disable=not self.verbose):
 
             # choose next point
             with self.timer(name='choose_next_point'):

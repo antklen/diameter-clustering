@@ -32,6 +32,7 @@ class LeaderClustering(FitPredictMixin, DistanceMatrixMixin):
             If False, then consider distance matrix as ordinary numpy array.
         deterministic (bool): If True then take points one by one to get deterministic behavior.
             If False then select points at random, so results would be different for each run.
+        verbose (bool): If True then output progress info, otherwise be silent.
 
     Attributes:
         labels_ (np.array): Array with cluster labels after fitting model.
@@ -41,7 +42,8 @@ class LeaderClustering(FitPredictMixin, DistanceMatrixMixin):
 
     def __init__(self, max_radius: float = 0.1, change_leaders: bool = False,
                  metric: str = 'cosine', precomputed_dist: bool = False,
-                 sparse_dist: bool = True, deterministic: bool = False):
+                 sparse_dist: bool = True, deterministic: bool = False,
+                 verbose: bool = True):
 
         self.max_radius = max_radius
         self.change_leaders = change_leaders
@@ -49,6 +51,7 @@ class LeaderClustering(FitPredictMixin, DistanceMatrixMixin):
         self.precomputed_dist = precomputed_dist
         self.sparse_dist = sparse_dist
         self.deterministic = deterministic
+        self.verbose = verbose
 
         self.max_distance = max_radius  # is needed for computation of sparse distance matrix
         self.labels_ = None
@@ -76,7 +79,7 @@ class LeaderClustering(FitPredictMixin, DistanceMatrixMixin):
         next_cluster = 1
         leaders[idx] = 1
 
-        for _ in tqdm(range(len(labels)-1), desc='LeaderClustering fit'):
+        for _ in tqdm(range(len(labels)-1), desc='LeaderClustering fit', disable=not self.verbose):
 
             # choose next point
             indexes = np.where(np.isnan(labels))[0]

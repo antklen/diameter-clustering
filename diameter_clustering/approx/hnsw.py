@@ -39,7 +39,7 @@ class HNSWIndex:
 
         self.index.set_ef(ef)
 
-    def add_item(self, vector: np.array, label: Optional[int] = None):
+    def add_item(self, vector: np.ndarray, label: Optional[int] = None):
         """Add one element to index.
 
         Args:
@@ -49,7 +49,7 @@ class HNSWIndex:
 
         self.index.add_items(vector, ids=label)
 
-    def add_items(self, vectors: np.array, labels: Optional[int] = None):
+    def add_items(self, vectors: np.ndarray, labels: Optional[int] = None):
         """Add batch of elements to index.
 
         Args:
@@ -59,7 +59,7 @@ class HNSWIndex:
 
         self.index.add_items(vectors, ids=labels)
 
-    def find_nearest_point(self, vector: np.array):
+    def find_nearest_point(self, vector: np.ndarray):
         """Find nearest point from index for given vector.
 
         Args:
@@ -72,7 +72,7 @@ class HNSWIndex:
         labels, distances = self.index.knn_query(vector, k=1)
         return labels[0, 0], distances[0, 0]
 
-    def find_nearest_point_batch(self, vectors: np.array):
+    def find_nearest_point_batch(self, vectors: np.ndarray):
         """Find nearest point from index for batch of vectors.
 
         Args:

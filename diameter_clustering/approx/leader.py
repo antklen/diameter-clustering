@@ -24,9 +24,9 @@ class ApproxLeaderClustering:
         verbose: If True then output progress info, otherwise be silent.
 
     Attributes:
-        labels_ (np.array): Array with cluster labels after fitting model.
+        labels_ (np.ndarray): Array with cluster labels after fitting model.
         n_clusters_ (int): Number of clusters after fitting model.
-        leaders_ (np.array): Array with 1 for cluster leaders and with 0 for all other points.
+        leaders_ (np.ndarray): Array with 1 for cluster leaders and with 0 for all other points.
 
     Examples:
         import numpy as np
@@ -63,7 +63,7 @@ class ApproxLeaderClustering:
         self.leaders_ = None
         self.n_clusters_ = None
 
-    def fit(self, X: np.array):
+    def fit(self, X: np.ndarray):
         """Fit clustering.
 
         Args:
@@ -114,7 +114,7 @@ class ApproxLeaderClustering:
         self.n_clusters_ = labels.max() + 1
 
 
-    def fit_predict(self, X: np.array) -> np.array:
+    def fit_predict(self, X: np.ndarray) -> np.ndarray:
         """Fit clustering and return cluster labels.
 
         Args:
@@ -128,7 +128,7 @@ class ApproxLeaderClustering:
 
         return self.labels_
 
-    def predict(self, X: np.array) -> np.array:
+    def predict(self, X: np.ndarray) -> np.ndarray:
         """Assigning new points to existent clusters without making new clusters.
 
         Returning -1 for points which can't be assigned to any cluster.
@@ -160,7 +160,7 @@ class ApproxLeaderClustering:
         return labels
 
 
-    def predict_batch(self, X: np.array) -> np.array:
+    def predict_batch(self, X: np.ndarray) -> np.ndarray:
         """Assigning new points to existent clusters without making new clusters.
 
         Returning -1 for points which can't be assigned to any cluster.

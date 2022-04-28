@@ -2,7 +2,10 @@
 Implementation of Leader clustering.
 """
 
+from typing import Union
+
 import numpy as np
+from scipy.sparse import csr_matrix
 from tqdm import tqdm
 
 from .base import FitPredictMixin, DistanceMatrixMixin
@@ -36,9 +39,9 @@ class LeaderClustering(FitPredictMixin, DistanceMatrixMixin):
         leaders_ (np.array): Array with 1 for cluster leaders and with 0 for all other points.
     """
 
-    def __init__(self, max_radius=0.1, change_leaders=False,
-                 metric='cosine', precomputed_dist=False,
-                 sparse_dist=True, deterministic=False):
+    def __init__(self, max_radius: float = 0.1, change_leaders: bool = False,
+                 metric: str = 'cosine', precomputed_dist: bool = False,
+                 sparse_dist: bool = True, deterministic: bool = False):
 
         self.max_radius = max_radius
         self.change_leaders = change_leaders
@@ -52,11 +55,11 @@ class LeaderClustering(FitPredictMixin, DistanceMatrixMixin):
         self.leaders_ = None
         self.n_clusters_ = None
 
-    def fit(self, X):
+    def fit(self, X: Union[np.ndarray, csr_matrix]):
         """Fit clustering from features or distance matrix.
 
         Args:
-            X (np.array or scipy.sparse.csr_matrix): Array with features or
+            X (np.ndarray or scipy.sparse.csr_matrix): Array with features or
                 precomputed distance matrix, could be in sparse matrix format.
         """
 

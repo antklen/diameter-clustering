@@ -1,9 +1,12 @@
 """
-Simple greedy algorithm fo clustering with maximum distance between points inside clusters.
+Simple greedy algorithm for clustering with maximum distance between points inside clusters.
 """
+
+from typing import Union
 
 import numpy as np
 import numpy_groupies as npg
+from scipy.sparse import csr_matrix
 from tqdm import tqdm
 
 from .base import FitPredictMixin, DistanceMatrixMixin
@@ -40,10 +43,10 @@ class MaxDiameterClustering(FitPredictMixin, DistanceMatrixMixin):
         timer: Timer with history of execution time (access history via self.timer.history).
     """
 
-    def __init__(self, max_distance=0.2, criterion='distance',
-                 metric='cosine', precomputed_dist=False,
-                 sparse_dist=True, deterministic=False,
-                 use_timer=False):
+    def __init__(self, max_distance: float = 0.2, criterion: str = 'distance',
+                 metric: str = 'cosine', precomputed_dist: bool = False,
+                 sparse_dist: bool = True, deterministic: bool = False,
+                 use_timer: bool = False):
 
         if criterion not in ['size', 'distance']:
             raise ValueError('Wrong criterion value, should be "size" or "distance".')
@@ -60,11 +63,11 @@ class MaxDiameterClustering(FitPredictMixin, DistanceMatrixMixin):
         self.n_clusters_ = None
         self.timer = None
 
-    def fit(self, X):
+    def fit(self, X: Union[np.ndarray, csr_matrix]):
         """Fit clustering from features or distance matrix.
 
         Args:
-            X (np.array or scipy.sparse.csr_matrix): Array with features or
+            X (np.ndarray or scipy.sparse.csr_matrix): Array with features or
                 precomputed distance matrix, could be in sparse format.
         """
 
@@ -133,7 +136,8 @@ class MaxDiameterClustering(FitPredictMixin, DistanceMatrixMixin):
         self.labels_ = labels.astype(int)
         self.n_clusters_ = labels.max() + 1
 
-    def _best_candidate_distance(self, candidate_clusters_labels, candidate_clusters_dist):
+    def _best_candidate_distance(self, candidate_clusters_labels: np.ndarray,
+                                 candidate_clusters_dist: np.ndarray) -> int:
         """Find best candidate cluster based on average distance to clusters."""
 
         # find average distance to clusters
@@ -148,7 +152,7 @@ class MaxDiameterClustering(FitPredictMixin, DistanceMatrixMixin):
 
         return label
 
-    def _best_candidate_size(self, candidate_clusters_labels):
+    def _best_candidate_size(self, candidate_clusters_labels: np.ndarray) -> int:
         """Find best candidate cluster based on size of clusters."""
 
         # find size of clusters

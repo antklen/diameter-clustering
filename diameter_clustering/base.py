@@ -3,6 +3,7 @@ Base classes for all clustering algorithms.
 """
 
 import logging
+from typing import Union
 
 import numpy as np
 from scipy.sparse import csr_matrix
@@ -14,15 +15,15 @@ from .timer import timer
 class FitPredictMixin:
     """Mixin with fit_predict method."""
 
-    def fit_predict(self, X):
+    def fit_predict(self, X: Union[np.ndarray, csr_matrix]) -> np.ndarray:
         """Fit clustering from features or distance matrix and return cluster labels.
 
         Args:
-            X (np.array or scipy.sparse.csr_matrix): Array with features or
-                precomputed distance matrix, which could be in sparse matrix format.
+            X (np.ndarray or scipy.sparse.csr_matrix): Array with features
+                or precomputed distance matrix, which could be in sparse matrix format.
 
         Returns:
-            np.array with cluster labels.
+            Array with cluster labels.
         """
 
         self.fit(X)
@@ -33,7 +34,7 @@ class FitPredictMixin:
 class DistanceMatrixMixin:
     """Mixin with methods for working with distance matrix."""
 
-    def _prepare_distance_matrix(self, X):
+    def _prepare_distance_matrix(self, X: Union[np.ndarray, csr_matrix]):
         """Prepare distance matrix.
 
         If self.precomputed_dist is True then do nothing, only check for correctness of X.
@@ -64,14 +65,15 @@ class DistanceMatrixMixin:
 
         return X
 
-    def _slice_distance_matrix(self, dist_matrix, idx, indexes):
+    def _slice_distance_matrix(self, dist_matrix: Union[np.ndarray, csr_matrix],
+                               idx: int, indexes: np.ndarray):
         """Get one row of distance matrix.
         Get distance between given point and several other points.
 
         Args:
-            dist (np.array or scipy.sparse.csr_matrix): Distance matrix.
+            dist (np.ndarray or scipy.sparse.csr_matrix): Distance matrix.
             idx (int): Index of given point.
-            indexes (np.array): Indexes of other points.
+            indexes (np.ndarray): Indexes of other points.
         """
 
         if isinstance(dist_matrix, csr_matrix):

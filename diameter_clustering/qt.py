@@ -2,8 +2,10 @@
 Implementation of Quality threshold clustering.
 """
 
+from typing import Union
+
 import numpy as np
-from scipy.sparse import lil_matrix
+from scipy.sparse import csr_matrix, lil_matrix
 from tqdm import tqdm
 
 from .base import FitPredictMixin, DistanceMatrixMixin
@@ -34,9 +36,9 @@ class QTClustering(FitPredictMixin, DistanceMatrixMixin):
         centers_ (np.array): Array with 1 for cluster centers and with 0 for all other points.
     """
 
-    def __init__(self, max_radius=0.1, min_cluster_size=2,
-                 metric='cosine', precomputed_dist=False,
-                 sparse_dist=True):
+    def __init__(self, max_radius: float = 0.1, min_cluster_size: int = 2,
+                 metric: str = 'cosine', precomputed_dist: bool = False,
+                 sparse_dist: bool = True):
 
         self.max_radius = max_radius
         self.min_cluster_size = min_cluster_size
@@ -49,11 +51,11 @@ class QTClustering(FitPredictMixin, DistanceMatrixMixin):
         self.centers_ = None
         self.n_clusters_ = None
 
-    def fit(self, X):
+    def fit(self, X: Union[np.ndarray, csr_matrix]):
         """Fit clustering from features or distance matrix.
 
         Args:
-            X (np.array or scipy.sparse.csr_matrix): Array with features or
+            X (np.ndarray or scipy.sparse.csr_matrix): Array with features or
                 precomputed distance matrix, could be in sparse matrix format.
         """
 
@@ -73,7 +75,7 @@ class QTClustering(FitPredictMixin, DistanceMatrixMixin):
         self.centers_ = centers
         self.n_clusters_ = labels.max() + 1
 
-    def fit_dense(self, dist_mask):
+    def fit_dense(self, dist_mask: np.ndarray):
         """Fit clustering from distance matrix mask when it is dense matrix."""
 
         labels = np.empty(dist_mask.shape[0])
@@ -112,7 +114,7 @@ class QTClustering(FitPredictMixin, DistanceMatrixMixin):
 
         return labels, centers
 
-    def fit_sparse(self, dist_mask):
+    def fit_sparse(self, dist_mask: csr_matrix):
         """Fit clustering from distance matrix mask when it is sparse matrix."""
 
         labels = np.empty(dist_mask.shape[0])

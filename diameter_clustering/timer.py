@@ -8,7 +8,7 @@ from contextlib import contextmanager
 
 
 @contextmanager
-def timer(name, disable=False):
+def timer(name: str, disable: bool = False):
     """Simple timer as context manager."""
 
     start = time.time()
@@ -39,7 +39,8 @@ class TimerWithHistory:
         hist1, hist2 = timer.history['default'], timer.history['first']
     """
 
-    def __init__(self, default_name='default', disable=False):
+    def __init__(self, default_name: str = 'default', disable: bool = False):
+
         self._start = None
         self.history = {}
         self.name = default_name

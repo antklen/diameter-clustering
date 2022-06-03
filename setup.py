@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as readme_file:
 
 setuptools.setup(
     name="diameter-clustering",
-    version="0.0.1",
+    version="0.1.0",
     author="Anton Klenitskiy",
     author_email="ant-klen@yandex.ru",
     description="Clustering with maximum distance between points inside clusters",
@@ -20,6 +20,7 @@ setuptools.setup(
         "Development Status :: 3 - Alpha",
     ],
     install_requires=[
+        'hnswlib',
         'numpy',
         'numpy_groupies',
         'scikit_learn',

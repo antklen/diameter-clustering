@@ -1,3 +1,4 @@
+hnswlib
 numpy
 numpy_groupies
 scikit_learn

@@ -1,12 +1,35 @@
 # Clustering with maximum diameter
 
-Clustering algorithms with maximum distance between points inside clusters.
+Collection of clustering algorithms with maximum distance between points inside clusters.
 
-When we have interpetable metric like cosine distance it could be nice to have clusters with maximum distance between points. Then we can find good threshold for maximum distance and be confident that points inside clusters are really similar. Unfortunately popular clustering algorithms don't have such behavior.
+When we have interpretable metric like cosine distance it could be nice to have clusters with maximum distance between points. Then we can find good threshold for maximum distance and be confident that points inside clusters are really similar. Also we dont' need to specify number of clusters with such approach.
 
-Main algorithm is MaxDiameterClustering. It is a simple greedy algorithm, in which we add points one by one. If there is a cluster with all points close enough to new points, then we add new point to this cluster. If there is no such cluster, this point starts new cluster.
+Unfortunately most of popular clustering algorithms don't have such behavior.
 
-Also two similar algorithms are added - Leader Clustering and Quality Threshold Clustering.
+Possible applications:
+- Embeddings of text data with cosine distance.
+- Geo data with haversine distance.
+
+## Algorithms
+
+### MaxDiameterClustering
+
+A simple greedy algorithm, in which we add points one by one. If there is a cluster with all points close enough to new points, then we add new point to this cluster. If there is no such cluster, this point starts new cluster.
+
+### Quality Threshold Clustering
+
+[Explanation](https://sites.google.com/site/dataclusteringalgorithms/quality-threshold-clustering-algorithm-1).
+
+Inspired by this [repository](https://github.com/melvrl13/python-quality-threshold).
+### Leader Clustering
+
+[Explanation on stackoverflow](https://stackoverflow.com/questions/36928654/leader-clustering-algorithm-explanation)
+
+[R package](https://cran.r-project.org/web/packages/leaderCluster/index.html)
+
+### Approximate Leader Clustering
+
+Use approximate nearest neighbors search (currently hnswlib) to speed up Leader Clustering.
 
 
 ## Installation
@@ -79,7 +102,17 @@ model = MaxDiameterClustering(max_distance=0.3, metric='cosine', deterministic=T
 labels = model.fit_predict(X)
 ```
 
+### Quality Threshold Clustering
 
+```python
+from diameter_clustering import QTClustering
+
+model = QTClustering(max_radius=0.15, metric='cosine', min_cluster_size=5)
+labels = model.fit_predict(X)
+```
+
+`precomputed_dist`, `sparse_dist`, and `inner_product`
+can be used as in MaxDiameterClustering. This algorithm is deterministic by design.
 
 ### Leader Clustering
 
@@ -93,20 +126,24 @@ labels = model.fit_predict(X)
 `precomputed_dist`, `sparse_dist`, `deterministic` and `inner_product`
 can be used as in MaxDiameterClustering.
 
-
-### Quality Threshold Clustering
+### Approximate Leader Clustering
 
 ```python
-from diameter_clustering import QTClustering
+from diameter_clustering.approx import HNSWIndex
+from diameter_clustering.approx import ApproxLeaderClustering
 
-model = QTClustering(max_radius=0.15, metric='cosine', min_cluster_size=5)
+# fit model
+hnsw_index = HNSWIndex(max_elements=len(X), space='cosine', dim=50,
+                       ef=100, ef_construction=200, M=16)
+model = ApproxLeaderClustering(hnsw_index, max_radius=0.15, deterministic=True)
 labels = model.fit_predict(X)
+
+# save index for later usage
+hnsw_index.save('hnsw_index.bin')
+
+# predict clusters for new data later
+hnsw_index = HNSWIndex(max_elements=len(X_new), path='hnsw_index.bin',
+                        space='cosine', dim=50, ef=100)
+model = ApproxLeaderClustering(hnsw_index, max_radius=0.15, deterministic=True)
+new_labels = model.predict(X_new)
 ```
-
-`precomputed_dist`, `sparse_dist`, and `inner_product`
-can be used as in MaxDiameterClustering. This algorithm is deterministic by design.
-
-
-
-
-
